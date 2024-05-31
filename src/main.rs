@@ -10,8 +10,8 @@ use crossterm::terminal::{
 use input::RegexInput;
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::widgets::Paragraph;
 use ratatui::style::{Color, Style};
+use ratatui::widgets::Paragraph;
 use ratatui::Terminal;
 use tui_textarea::{Input, Key};
 
@@ -53,7 +53,9 @@ fn main() -> io::Result<()> {
     loop {
         term.draw(|f| {
             let chunks = layout.split(f.size());
-            let banner = Paragraph::new("Regect").right_aligned().style(Style::default().fg(Color::Cyan));
+            let banner = Paragraph::new("Regect")
+                .right_aligned()
+                .style(Style::default().fg(Color::Cyan));
             f.render_widget(banner, chunks[0]);
             f.render_widget(regex_input.textarea.widget(), chunks[1]);
             match mode {
