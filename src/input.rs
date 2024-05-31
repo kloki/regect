@@ -1,8 +1,8 @@
-use tui_textarea::TextArea;
-
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, BorderType, Borders};
 use regex::Regex;
+use tui_textarea::TextArea;
+
 pub struct RegexInput<'a> {
     pub textarea: TextArea<'a>,
 }
@@ -10,7 +10,6 @@ pub struct RegexInput<'a> {
 impl RegexInput<'_> {
     pub fn new() -> Self {
         let mut textarea = TextArea::default();
-        textarea.set_cursor_line_style(Style::default());
         textarea.set_placeholder_text("Enter a valid regex");
 
         textarea.set_block(
