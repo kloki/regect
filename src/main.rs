@@ -10,6 +10,8 @@ use crossterm::terminal::{
 use input::RegexInput;
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::{Constraint, Direction, Layout};
+use ratatui::widgets::Paragraph;
+use ratatui::style::{Color, Style};
 use ratatui::Terminal;
 use tui_textarea::{Input, Key};
 
@@ -35,23 +37,28 @@ fn main() -> io::Result<()> {
     crossterm::execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
     let backend = CrosstermBackend::new(stdout);
     let mut term = Terminal::new(backend)?;
+
+    let mut mode = Mode::RegexEdit;
     let mut regex_input = RegexInput::new();
     let mut body = Body::new();
 
-    let mut mode = Mode::RegexEdit;
-
     let layout = Layout::default()
         .direction(Direction::Vertical)
-        .constraints(vec![Constraint::Length(3), Constraint::Fill(1)]);
+        .constraints(vec![
+            Constraint::Length(1),
+            Constraint::Length(3),
+            Constraint::Fill(1),
+        ]);
 
     loop {
         term.draw(|f| {
             let chunks = layout.split(f.size());
-            let widget = regex_input.textarea.widget();
-            f.render_widget(widget, chunks[0]);
+            let banner = Paragraph::new("Regect").right_aligned().style(Style::default().fg(Color::Cyan));
+            f.render_widget(banner, chunks[0]);
+            f.render_widget(regex_input.textarea.widget(), chunks[1]);
             match mode {
-                Mode::RegexEdit => f.render_widget(body.highlighted_body(), chunks[1]),
-                Mode::BodyEdit => f.render_widget(body.textarea.widget(), chunks[1]),
+                Mode::RegexEdit => f.render_widget(body.highlighted_body(), chunks[2]),
+                Mode::BodyEdit => f.render_widget(body.textarea.widget(), chunks[2]),
             }
         })?;
 
