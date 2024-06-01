@@ -12,3 +12,4 @@ cargo install regect
 
 - [ ] Multi lines matching
 - [ ] Pre-populate with body with Stdin
+- [ ] Show matching groups
