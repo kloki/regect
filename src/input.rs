@@ -33,6 +33,10 @@ impl RegexInput<'_> {
         )
     }
 
+    pub fn current_regex(&self) -> Option<Regex> {
+        Regex::new(&self.textarea.lines()[0]).ok()
+    }
+
     pub fn validate(&mut self) {
         if let Err(err) = Regex::new(&self.textarea.lines()[0]) {
             self.textarea

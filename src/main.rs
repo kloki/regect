@@ -81,7 +81,10 @@ fn main() -> io::Result<()> {
             match mode {
                 Mode::RegexEdit => {
                     f.render_widget(regex_input.textarea.widget(), chunks[1]);
-                    f.render_widget(body.highlighted_body(), chunks[2]);
+                    f.render_widget(
+                        body.highlighted_body(regex_input.current_regex()),
+                        chunks[2],
+                    );
                 }
                 Mode::QuickReference => {
                     f.render_widget(regex_input.textarea.widget(), chunks[1]);
@@ -105,6 +108,7 @@ fn main() -> io::Result<()> {
                 ctrl: true,
                 ..
             } => mode = mode.toggle(),
+            Input { key: Key::Esc, .. } => mode = mode.toggle(),
             Input {
                 key: Key::Char('h'),
                 ctrl: true,

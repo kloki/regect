@@ -1,7 +1,9 @@
 use ratatui::{
     style::{Color, Style},
+    text::{Line, Span, Text},
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
+use regex::Regex;
 use tui_textarea::TextArea;
 
 const HELP: &str = r"
@@ -40,8 +42,29 @@ impl Body<'_> {
         Self { textarea }
     }
 
-    pub fn highlighted_body(&self) -> impl Widget + '_ {
-        Paragraph::new(self.textarea.lines().join("\n")).block(
+    pub fn highlighted_body(&self, current_regex: Option<Regex>) -> impl Widget + '_ {
+        let mut text = Text::default();
+        if let Some(regex) = current_regex {
+            for l in self.textarea.lines() {
+                let mut current_index = 0;
+                let mut line = Line::default();
+
+                for re_match in regex.find_iter(l) {
+                    line.push_span(Span::from((l[current_index..re_match.start()]).to_owned()));
+                    line.push_span(Span::styled(
+                        (l[re_match.start()..re_match.end()]).to_owned(),
+                        Style::default().fg(Color::Black).bg(Color::Yellow),
+                    ));
+                    current_index = re_match.end();
+                }
+                line.push_span(Span::from((l[current_index..]).to_owned()));
+                text.push_line(line);
+            }
+        } else {
+            text = self.textarea.lines().join("\n").into();
+        };
+
+        Paragraph::new(text).block(
             Block::new()
                 .border_type(BorderType::Rounded)
                 .border_style(Style::default().fg(Color::DarkGray))
