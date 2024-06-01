@@ -17,6 +17,7 @@ use ratatui::{
 };
 use tui_textarea::{Input, Key};
 
+#[derive(Clone)]
 enum Mode {
     RegexEdit,
     BodyEdit,
@@ -59,6 +60,8 @@ fn main() -> io::Result<()> {
     let mut regex_input = RegexInput::new();
     let mut body = Body::new();
 
+    let mut result = String::new();
+
     let layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints(vec![
@@ -97,33 +100,49 @@ fn main() -> io::Result<()> {
             }
         })?;
 
-        match crossterm::event::read()?.into() {
-            Input {
-                key: Key::Char('q'),
-                ctrl: true,
-                ..
-            } => break,
-            Input {
-                key: Key::Char('x'),
-                ctrl: true,
-                ..
-            } => mode = mode.toggle(),
-            Input { key: Key::Esc, .. } => mode = mode.toggle(),
-            Input {
-                key: Key::Char('h'),
-                ctrl: true,
-                ..
-            } => mode = mode.toggle_reference(),
-            input => match mode {
-                Mode::BodyEdit => {
-                    body.textarea.input(input);
+        match (crossterm::event::read()?.into(), mode.clone()) {
+            (
+                Input {
+                    key: Key::Char('q'),
+                    ctrl: true,
+                    ..
+                },
+                _,
+            ) => break,
+            (
+                Input {
+                    key: Key::Enter, ..
+                },
+                Mode::RegexEdit,
+            ) => {
+                result = regex_input.textarea.lines()[0].clone();
+                break;
+            }
+            (
+                Input {
+                    key: Key::Char('x'),
+                    ctrl: true,
+                    ..
+                },
+                _,
+            ) => mode = mode.toggle(),
+            (Input { key: Key::Esc, .. }, _) => mode = mode.toggle(),
+            (
+                Input {
+                    key: Key::Char('h'),
+                    ctrl: true,
+                    ..
+                },
+                _,
+            ) => mode = mode.toggle_reference(),
+            (input, Mode::BodyEdit) => {
+                body.textarea.input(input);
+            }
+            (input, _) => {
+                if regex_input.textarea.input(input) {
+                    regex_input.validate()
                 }
-                _ => {
-                    if regex_input.textarea.input(input) {
-                        regex_input.validate()
-                    }
-                }
-            },
+            }
         }
     }
 
@@ -134,6 +153,7 @@ fn main() -> io::Result<()> {
         DisableMouseCapture
     )?;
     term.show_cursor()?;
+    println!("{}", result);
 
     Ok(())
 }
