@@ -1,5 +1,7 @@
-use ratatui::style::{Color, Style};
-use ratatui::widgets::{Block, BorderType, Borders};
+use ratatui::{
+    style::{Color, Style},
+    widgets::{Block, BorderType, Borders, Paragraph, Widget},
+};
 use regex::Regex;
 use tui_textarea::TextArea;
 
@@ -15,9 +17,24 @@ impl RegexInput<'_> {
         textarea.set_block(
             Block::default()
                 .border_type(BorderType::Rounded)
-                .borders(Borders::ALL),
+                .borders(Borders::ALL)
+                .title("regex"),
         );
         Self { textarea }
+    }
+
+    pub fn unfocused(&self) -> impl Widget + '_ {
+        Paragraph::new(self.textarea.lines()[0].clone()).block(
+            Block::new()
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default().fg(Color::DarkGray))
+                .borders(Borders::ALL)
+                .title("regex"),
+        )
+    }
+
+    pub fn current_regex(&self) -> Option<Regex> {
+        Regex::new(&self.textarea.lines()[0]).ok()
     }
 
     pub fn validate(&mut self) {
@@ -37,7 +54,8 @@ impl RegexInput<'_> {
             self.textarea.set_block(
                 Block::default()
                     .border_type(BorderType::Rounded)
-                    .borders(Borders::ALL),
+                    .borders(Borders::ALL)
+                    .title("regex"),
             );
         }
     }
