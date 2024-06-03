@@ -1,48 +1,45 @@
-mod body;
-mod input;
 use std::io;
 
-use body::Body;
+use body::{banner, captures, footer, help, TestInput};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use input::RegexInput;
 use ratatui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
-    widgets::Paragraph,
     Terminal,
 };
+use regex_input::RegexInput;
 use tui_textarea::{Input, Key};
 
+mod body;
+mod regex_input;
 #[derive(Clone)]
-enum Mode {
+enum EditMode {
     RegexEdit,
     BodyEdit,
-    QuickReference,
 }
 
-const BANNER: &str = r"┏┓┏┓┏┓┏┓┏╋
-┛ ┗ ┗┫┗ ┗┗
-";
-
-const FOOTER: &str = r"^x to switch input, ^h quick reference, ^q quit";
-
-impl Mode {
+impl EditMode {
     fn toggle(&self) -> Self {
         match self {
-            Mode::RegexEdit => Mode::BodyEdit,
-            Mode::BodyEdit => Mode::RegexEdit,
-            Mode::QuickReference => Mode::RegexEdit,
+            EditMode::RegexEdit => EditMode::BodyEdit,
+            EditMode::BodyEdit => EditMode::RegexEdit,
         }
     }
+}
 
-    fn toggle_reference(&self) -> Self {
+enum InfoMode {
+    QuickReference,
+    Captures,
+}
+
+impl InfoMode {
+    fn toggle(&self) -> Self {
         match self {
-            Mode::QuickReference => Mode::RegexEdit,
-            _ => Mode::QuickReference,
+            InfoMode::QuickReference => InfoMode::Captures,
+            InfoMode::Captures => InfoMode::QuickReference,
         }
     }
 }
@@ -56,9 +53,10 @@ fn main() -> io::Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut term = Terminal::new(backend)?;
 
-    let mut mode = Mode::RegexEdit;
+    let mut mode = EditMode::RegexEdit;
+    let mut info_mode = InfoMode::Captures;
     let mut regex_input = RegexInput::new();
-    let mut body = Body::new();
+    let mut body = TestInput::new();
 
     let mut result = String::new();
 
@@ -68,35 +66,33 @@ fn main() -> io::Result<()> {
             Constraint::Length(2),
             Constraint::Length(3),
             Constraint::Fill(1),
+            Constraint::Fill(1),
             Constraint::Length(1),
         ]);
 
     loop {
         term.draw(|f| {
             let chunks = layout.split(f.size());
-            let banner = Paragraph::new(BANNER)
-                .centered()
-                .style(Style::default().fg(Color::Cyan));
-            let footer = Paragraph::new(FOOTER).right_aligned();
-            f.render_widget(banner, chunks[0]);
-            f.render_widget(footer, chunks[3]);
+            f.render_widget(banner(), chunks[0]);
+            f.render_widget(footer(), chunks[4]);
 
             match mode {
-                Mode::RegexEdit => {
+                EditMode::RegexEdit => {
                     f.render_widget(regex_input.textarea.widget(), chunks[1]);
                     f.render_widget(
                         body.highlighted_body(regex_input.current_regex()),
                         chunks[2],
                     );
                 }
-                Mode::QuickReference => {
-                    f.render_widget(regex_input.textarea.widget(), chunks[1]);
-                    f.render_widget(body.help(), chunks[2]);
-                }
-                Mode::BodyEdit => {
+                EditMode::BodyEdit => {
                     f.render_widget(regex_input.unfocused(), chunks[1]);
                     f.render_widget(body.textarea.widget(), chunks[2]);
                 }
+            }
+
+            match info_mode {
+                InfoMode::QuickReference => f.render_widget(help(), chunks[3]),
+                InfoMode::Captures => f.render_widget(captures(), chunks[3]),
             }
         })?;
 
@@ -113,7 +109,7 @@ fn main() -> io::Result<()> {
                 Input {
                     key: Key::Enter, ..
                 },
-                Mode::RegexEdit,
+                EditMode::RegexEdit,
             ) => {
                 result = regex_input.textarea.lines()[0].clone();
                 break;
@@ -134,8 +130,8 @@ fn main() -> io::Result<()> {
                     ..
                 },
                 _,
-            ) => mode = mode.toggle_reference(),
-            (input, Mode::BodyEdit) => {
+            ) => info_mode = info_mode.toggle(),
+            (input, EditMode::BodyEdit) => {
                 body.textarea.input(input);
             }
             (input, _) => {

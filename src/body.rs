@@ -6,6 +6,11 @@ use ratatui::{
 use regex::Regex;
 use tui_textarea::TextArea;
 
+const BANNER: &str = r"┏┓┏┓┏┓┏┓┏╋
+┛ ┗ ┗┫┗ ┗┗
+";
+const FOOTER: &str = r"^x to switch input, ^h quick reference, ^q quit";
+
 const HELP: &str = r"
 Character     Description                  Frequency & Quantifiers   Grouping & Boundaries
 .             Any character except newline *    0 or more            ()    Grouping
@@ -26,10 +31,6 @@ Character Sets       Escapes                     Special
 [a-zA-Z0-9]          \f    Form feed
 ";
 
-pub struct Body<'a> {
-    pub textarea: TextArea<'a>,
-}
-
 pub fn get_color(index: usize) -> Color {
     match index % 5 {
         0 => Color::Green,
@@ -39,8 +40,11 @@ pub fn get_color(index: usize) -> Color {
         _ => Color::Magenta,
     }
 }
+pub struct TestInput<'a> {
+    pub textarea: TextArea<'a>,
+}
 
-impl Body<'_> {
+impl TestInput<'_> {
     pub fn new() -> Self {
         let mut textarea = TextArea::default();
 
@@ -105,14 +109,33 @@ impl Body<'_> {
                 .title("Test Input"),
         )
     }
+}
 
-    pub fn help(&self) -> impl Widget + '_ {
-        Paragraph::new(HELP).block(
-            Block::new()
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default())
-                .borders(Borders::ALL)
-                .title("Quick Reference"),
-        )
-    }
+pub fn banner() -> impl Widget {
+    Paragraph::new(BANNER)
+        .centered()
+        .style(Style::default().fg(Color::Cyan))
+}
+pub fn footer() -> impl Widget {
+    Paragraph::new(FOOTER).right_aligned()
+}
+
+pub fn help() -> impl Widget {
+    Paragraph::new(HELP).block(
+        Block::new()
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default())
+            .borders(Borders::ALL)
+            .title("Quick Reference"),
+    )
+}
+
+pub fn captures() -> impl Widget {
+    Paragraph::new("matchessssss").block(
+        Block::new()
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default())
+            .borders(Borders::ALL)
+            .title("Captures"),
+    )
 }
