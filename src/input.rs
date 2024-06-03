@@ -18,7 +18,7 @@ impl RegexInput<'_> {
             Block::default()
                 .border_type(BorderType::Rounded)
                 .borders(Borders::ALL)
-                .title("regex"),
+                .title("Regex"),
         );
         Self { textarea }
     }
@@ -27,9 +27,9 @@ impl RegexInput<'_> {
         Paragraph::new(self.textarea.lines()[0].clone()).block(
             Block::new()
                 .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::DarkGray))
+                .border_style(Style::default().fg(Color::Gray))
                 .borders(Borders::ALL)
-                .title("regex"),
+                .title("Regex"),
         )
     }
 

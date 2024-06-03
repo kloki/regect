@@ -47,16 +47,6 @@ impl Mode {
     }
 }
 
-const HELP: &str = r". Any character    ^ Start of string    $ End of string    * 0+ occurrences       + 1+ occurrences     ? 0 or 1 occurrence
- {n} Exactly n      {n,} n+ occurrences  {,m} At most m     {n,m} n to m occ.      [abc] Any of a,b,c   [^abc] None of a,b,c
- [a-z] a to z       [A-Z] A to Z         [0-9] Any digit    \d Any digit           \D Non-digit         \w Word character
- \W Non-word char   \s Any whitespace    \S Non-whitespace  \t Tab                 \n Newline           \r Carriage return
- \\ Backslash       \. Literal dot       \+ Literal plus    \* Literal asterisk    \? Literal question  | Alternation
- (...) Grouping     (?=...) Lookahead    (?!...) Neg lookahead (?<=...) Lookbehind  (?<!...) Neg lookbehind
- i Case-insensitive g Global search      m Multi-line mode  s Dot matches newline
-
-";
-
 fn main() -> io::Result<()> {
     let stdout = io::stdout();
     let mut stdout = stdout.lock();

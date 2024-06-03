@@ -30,6 +30,16 @@ pub struct Body<'a> {
     pub textarea: TextArea<'a>,
 }
 
+pub fn get_color(index: usize) -> Color {
+    match index % 5 {
+        0 => Color::Green,
+        1 => Color::Blue,
+        2 => Color::Yellow,
+        3 => Color::Cyan,
+        _ => Color::Magenta,
+    }
+}
+
 impl Body<'_> {
     pub fn new() -> Self {
         let mut textarea = TextArea::default();
@@ -37,38 +47,62 @@ impl Body<'_> {
         textarea.set_block(
             Block::default()
                 .border_type(BorderType::Rounded)
-                .borders(Borders::ALL),
+                .borders(Borders::ALL)
+                .title("Test Input"),
         );
         Self { textarea }
     }
 
     pub fn highlighted_body(&self, current_regex: Option<Regex>) -> impl Widget + '_ {
+        fn append_match(part: &str, lines: &mut Vec<Vec<Span>>, style: Style) {
+            let mut last = lines.len() - 1;
+            if !part.contains('\n') {
+                lines[last].push(Span::styled(part.to_owned(), style));
+                return;
+            }
+
+            for p in part.split('\n') {
+                lines[last].push(Span::styled(p.to_owned(), style));
+                last += 1;
+                lines.push(vec![]);
+            }
+
+            lines.pop();
+        }
+        let body = self.textarea.lines().join("\n");
         let mut text = Text::default();
         if let Some(regex) = current_regex {
-            for l in self.textarea.lines() {
-                let mut current_index = 0;
-                let mut line = Line::default();
+            let mut lines: Vec<Vec<Span>> = vec![vec![]];
 
-                for re_match in regex.find_iter(l) {
-                    line.push_span(Span::from((l[current_index..re_match.start()]).to_owned()));
-                    line.push_span(Span::styled(
-                        (l[re_match.start()..re_match.end()]).to_owned(),
-                        Style::default().fg(Color::Black).bg(Color::Yellow),
-                    ));
-                    current_index = re_match.end();
-                }
-                line.push_span(Span::from((l[current_index..]).to_owned()));
-                text.push_line(line);
+            let mut current_index = 0;
+
+            for (i, re_match) in regex.find_iter(&body).enumerate() {
+                append_match(
+                    &body[current_index..re_match.start()],
+                    &mut lines,
+                    Style::default(),
+                );
+                append_match(
+                    &body[re_match.start()..re_match.end()],
+                    &mut lines,
+                    Style::default().fg(Color::Black).bg(get_color(i)),
+                );
+                current_index = re_match.end();
+            }
+            append_match(&body[current_index..], &mut lines, Style::default());
+            for line in lines {
+                text.push_line(Line::from(line));
             }
         } else {
-            text = self.textarea.lines().join("\n").into();
+            text = body.into();
         };
 
         Paragraph::new(text).block(
             Block::new()
                 .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::DarkGray))
-                .borders(Borders::ALL),
+                .border_style(Style::default().fg(Color::Gray))
+                .borders(Borders::ALL)
+                .title("Test Input"),
         )
     }
 
