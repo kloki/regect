@@ -1,7 +1,6 @@
-```
-┏┓┏┓┏┓┏┓┏╋
-┛ ┗ ┗┫┗ ┗┗
-```
+![Example](./example.png)
+
+# Regect
 
 regex 101 like cli tool
 
@@ -14,4 +13,3 @@ cargo install regect
 ## Todo
 
 - [ ] Pre-populate with body with Stdin
-- [ ] Show matching groups

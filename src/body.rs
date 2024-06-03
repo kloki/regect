@@ -1,7 +1,8 @@
 use ratatui::{
+    layout::Constraint,
     style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{Block, BorderType, Borders, Paragraph, Widget},
+    widgets::{Block, BorderType, Borders, Paragraph, Row, Table, Widget},
 };
 use regex::Regex;
 use tui_textarea::TextArea;
@@ -15,13 +16,13 @@ const HELP: &str = r"
 Character     Description                  Frequency & Quantifiers   Grouping & Boundaries
 .             Any character except newline *    0 or more            ()    Grouping
 ^             Start of string              +    1 or more            (?:)  Non-capturing group
-$             End of string                ?    0 or 1 (optional)    (?=)  Positive lookahead
-\d            Any digit ([0-9])            {n}  Exactly n            (?!   Negative lookahead
-\D            Any non-digit                {n,} n or more            (?<=  Positive lookbehind
-\w            Any word char ([a-zA-Z0-9_]) {n,m} Between n and m     (?<!  Negative lookbehind
-\W            Any non-word char            ?    Non-greedy           \b    Word boundary
-\s            Any whitespace               |    Alternation (OR)     \B    Non-word boundary
-\S            Any non-whitespace
+$             End of string                ?    0 or 1 (optional)    (?<>) Named group
+\d            Any digit ([0-9])            {n}  Exactly n            (?=)  Positive lookahead
+\D            Any non-digit                {n,} n or more            (?!   Negative lookahead
+\w            Any word char ([a-zA-Z0-9_]) {n,m} Between n and m     (?<=  Positive lookbehind
+\W            Any non-word char            ?    Non-greedy           (?<!  Negative lookbehind
+\s            Any whitespace               |    Alternation (OR)     \b    Word boundary
+\S            Any non-whitespace                                     \B    Non-word boundary
 
 Character Sets       Escapes                     Special
 [a-z]                \\    Backslash escape      \    Escape character
@@ -57,6 +58,9 @@ impl TestInput<'_> {
         Self { textarea }
     }
 
+    pub fn body(&self) -> String {
+        self.textarea.lines().join("\n").to_string()
+    }
     pub fn highlighted_body(&self, current_regex: Option<Regex>) -> impl Widget + '_ {
         fn append_match(part: &str, lines: &mut Vec<Vec<Span>>, style: Style) {
             let mut last = lines.len() - 1;
@@ -130,12 +134,49 @@ pub fn help() -> impl Widget {
     )
 }
 
-pub fn captures() -> impl Widget {
-    Paragraph::new("matchessssss").block(
-        Block::new()
-            .border_type(BorderType::Rounded)
-            .border_style(Style::default())
-            .borders(Borders::ALL)
-            .title("Captures"),
-    )
+pub fn captures(reg: Option<Regex>, body: String) -> impl Widget {
+    if let Some(reg) = reg {
+        let mut rows: Vec<Row> = vec![];
+        let names = reg
+            .capture_names()
+            .enumerate()
+            .map(|(i, x)| match x {
+                Some(name) => name.to_string(),
+                None => i.to_string(),
+            })
+            .collect::<Vec<_>>();
+
+        let widths = vec![Constraint::Fill(1); names.len()];
+
+        for (i, cap) in reg.captures_iter(&body).enumerate() {
+            rows.push(
+                Row::new(cap.iter().map(|sub| match sub {
+                    Some(sub) => sub.as_str().to_string(),
+                    None => "".to_string(),
+                }))
+                .style(Style::default().fg(get_color(i))),
+            )
+        }
+
+        Table::new(rows, widths)
+            .column_spacing(1)
+            .header(Row::new(names).bottom_margin(1))
+            .block(
+                Block::new()
+                    .border_type(BorderType::Rounded)
+                    .border_style(Style::default())
+                    .borders(Borders::ALL)
+                    .title("Captures"),
+            )
+    } else {
+        let rows: Vec<Row> = vec![];
+        let widths = vec![Constraint::Fill(1); 0];
+        Table::new(rows, widths).block(
+            Block::new()
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default())
+                .borders(Borders::ALL)
+                .title("Captures"),
+        )
+    }
 }

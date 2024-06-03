@@ -92,7 +92,10 @@ fn main() -> io::Result<()> {
 
             match info_mode {
                 InfoMode::QuickReference => f.render_widget(help(), chunks[3]),
-                InfoMode::Captures => f.render_widget(captures(), chunks[3]),
+                InfoMode::Captures => f.render_widget(
+                    captures(regex_input.current_regex(), body.body()),
+                    chunks[3],
+                ),
             }
         })?;
 
