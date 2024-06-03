@@ -55,7 +55,7 @@ impl RegexInput<'_> {
                 Block::default()
                     .border_type(BorderType::Rounded)
                     .borders(Borders::ALL)
-                    .title("regex"),
+                    .title("Regex"),
             );
         }
     }

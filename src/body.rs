@@ -48,7 +48,7 @@ pub struct TestInput<'a> {
 impl TestInput<'_> {
     pub fn new() -> Self {
         let mut textarea = TextArea::default();
-
+        textarea.set_style(Style::default().fg(Color::LightGreen));
         textarea.set_block(
             Block::default()
                 .border_type(BorderType::Rounded)
