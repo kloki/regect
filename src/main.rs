@@ -44,7 +44,16 @@ impl InfoMode {
     }
 }
 
+fn read_from_stdin() -> Option<Vec<String>> {
+    if !atty::is(atty::Stream::Stdin) {
+        Some(io::stdin().lines().map(|l| l.unwrap()).collect())
+    } else {
+        None
+    }
+}
+
 fn main() -> io::Result<()> {
+    let input = read_from_stdin();
     let stdout = io::stdout();
     let mut stdout = stdout.lock();
 
@@ -57,6 +66,13 @@ fn main() -> io::Result<()> {
     let mut info_mode = InfoMode::Captures;
     let mut regex_input = RegexInput::new();
     let mut body = TestInput::new();
+
+    if let Some(input) = input {
+        for line in &input {
+            body.textarea.insert_str(line);
+            body.textarea.insert_newline();
+        }
+    }
 
     let mut result = String::new();
 

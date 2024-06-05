@@ -15,7 +15,3 @@ regect
 ```
 cargo install regect
 ```
-
-## Todo
-
-- [ ] Pre-populate with body with Stdin
