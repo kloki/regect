@@ -1,48 +1,14 @@
 use std::io;
 
-use body::{banner, captures, footer, help, TestInput};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{
-    backend::CrosstermBackend,
-    layout::{Constraint, Direction, Layout},
-    Terminal,
-};
-use regex_input::RegexInput;
-use tui_textarea::{Input, Key};
+use ratatui::{backend::CrosstermBackend, Terminal};
 
+mod app;
 mod body;
 mod regex_input;
-#[derive(Clone)]
-enum EditMode {
-    RegexEdit,
-    BodyEdit,
-}
-
-impl EditMode {
-    fn toggle(&self) -> Self {
-        match self {
-            EditMode::RegexEdit => EditMode::BodyEdit,
-            EditMode::BodyEdit => EditMode::RegexEdit,
-        }
-    }
-}
-
-enum InfoMode {
-    QuickReference,
-    Captures,
-}
-
-impl InfoMode {
-    fn toggle(&self) -> Self {
-        match self {
-            InfoMode::QuickReference => InfoMode::Captures,
-            InfoMode::Captures => InfoMode::QuickReference,
-        }
-    }
-}
 
 fn read_from_stdin() -> Option<Vec<String>> {
     if !atty::is(atty::Stream::Stdin) {
@@ -62,104 +28,8 @@ fn main() -> io::Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut term = Terminal::new(backend)?;
 
-    let mut mode = EditMode::RegexEdit;
-    let mut info_mode = InfoMode::Captures;
-    let mut regex_input = RegexInput::new();
-    let mut body = TestInput::new();
-
-    if let Some(input) = input {
-        for line in &input {
-            body.textarea.insert_str(line);
-            body.textarea.insert_newline();
-        }
-    }
-
-    let mut result = String::new();
-
-    let layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(vec![
-            Constraint::Length(2),
-            Constraint::Length(3),
-            Constraint::Fill(1),
-            Constraint::Fill(1),
-            Constraint::Length(1),
-        ]);
-
-    loop {
-        term.draw(|f| {
-            let chunks = layout.split(f.size());
-            f.render_widget(banner(), chunks[0]);
-            f.render_widget(footer(), chunks[4]);
-
-            match mode {
-                EditMode::RegexEdit => {
-                    f.render_widget(regex_input.textarea.widget(), chunks[1]);
-                    f.render_widget(
-                        body.highlighted_body(regex_input.current_regex()),
-                        chunks[2],
-                    );
-                }
-                EditMode::BodyEdit => {
-                    f.render_widget(regex_input.unfocused(), chunks[1]);
-                    f.render_widget(body.textarea.widget(), chunks[2]);
-                }
-            }
-
-            match info_mode {
-                InfoMode::QuickReference => f.render_widget(help(), chunks[3]),
-                InfoMode::Captures => f.render_widget(
-                    captures(regex_input.current_regex(), body.body()),
-                    chunks[3],
-                ),
-            }
-        })?;
-
-        match (crossterm::event::read()?.into(), mode.clone()) {
-            (
-                Input {
-                    key: Key::Char('q'),
-                    ctrl: true,
-                    ..
-                },
-                _,
-            ) => break,
-            (
-                Input {
-                    key: Key::Enter, ..
-                },
-                EditMode::RegexEdit,
-            ) => {
-                result = regex_input.textarea.lines()[0].clone();
-                break;
-            }
-            (
-                Input {
-                    key: Key::Char('x'),
-                    ctrl: true,
-                    ..
-                },
-                _,
-            ) => mode = mode.toggle(),
-            (Input { key: Key::Esc, .. }, _) => mode = mode.toggle(),
-            (
-                Input {
-                    key: Key::Char('h'),
-                    ctrl: true,
-                    ..
-                },
-                _,
-            ) => info_mode = info_mode.toggle(),
-            (input, EditMode::BodyEdit) => {
-                body.textarea.input(input);
-            }
-            (input, _) => {
-                if regex_input.textarea.input(input) {
-                    regex_input.validate()
-                }
-            }
-        }
-    }
+    let mut app = app::App::new(input);
+    app.run(&mut term)?;
 
     disable_raw_mode()?;
     crossterm::execute!(
@@ -168,7 +38,6 @@ fn main() -> io::Result<()> {
         DisableMouseCapture
     )?;
     term.show_cursor()?;
-    println!("{}", result);
 
     Ok(())
 }

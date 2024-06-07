@@ -10,7 +10,7 @@ use tui_textarea::TextArea;
 const BANNER: &str = r"┏┓┏┓┏┓┏┓┏╋
 ┛ ┗ ┗┫┗ ┗┗
 ";
-const FOOTER: &str = r"^x to switch input, ^h quick reference, ^q quit";
+const FOOTER: &str = r"^h quick reference, ^q quit";
 
 const HELP: &str = r"
 Character     Description                  Frequency & Quantifiers   Grouping & Boundaries
@@ -170,7 +170,7 @@ pub fn captures(reg: Option<Regex>, body: String) -> impl Widget {
             )
     } else {
         let rows: Vec<Row> = vec![];
-        let widths = vec![Constraint::Fill(1); 0];
+        let widths: Vec<Constraint> = vec![];
         Table::new(rows, widths).block(
             Block::new()
                 .border_type(BorderType::Rounded)
