@@ -7,6 +7,7 @@ use crossterm::{
 use ratatui::{backend::CrosstermBackend, Terminal};
 
 mod app;
+mod banners;
 mod body;
 mod regex_input;
 

@@ -9,7 +9,8 @@ use ratatui::{
 use tui_textarea::{Input, Key};
 
 use crate::{
-    body::{banner, captures, footer, help, TestInput},
+    banners::{footer, header, help},
+    body::{captures, TestInput},
     regex_input::RegexInput,
 };
 #[derive(Clone)]
@@ -43,7 +44,7 @@ impl App<'_> {
             .constraints(vec![
                 Constraint::Length(2),
                 Constraint::Length(3),
-                Constraint::Fill(1),
+                Constraint::Fill(2),
                 Constraint::Fill(1),
                 Constraint::Length(1),
             ]);
@@ -79,7 +80,7 @@ impl App<'_> {
 
     fn draw(&self, f: &mut Frame) {
         let chunks = self.layout.split(f.size());
-        f.render_widget(banner(), chunks[0]);
+        f.render_widget(header(), chunks[0]);
         f.render_widget(footer(), chunks[4]);
 
         match self.edit_mode {
