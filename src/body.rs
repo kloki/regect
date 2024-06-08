@@ -28,7 +28,7 @@ impl TestInput<'_> {
             Block::default()
                 .border_type(BorderType::Rounded)
                 .borders(Borders::ALL)
-                .title("Test Input"),
+                .title("Input"),
         );
         Self { textarea }
     }
@@ -85,7 +85,7 @@ impl TestInput<'_> {
                 .border_type(BorderType::Rounded)
                 .border_style(Style::default().fg(Color::Gray))
                 .borders(Borders::ALL)
-                .title("Test Input"),
+                .title("Input"),
         )
     }
 }
@@ -120,7 +120,7 @@ pub fn captures(reg: Option<Regex>, body: String) -> impl Widget {
             .block(
                 Block::new()
                     .border_type(BorderType::Rounded)
-                    .border_style(Style::default())
+                    .border_style(Style::default().fg(Color::Gray))
                     .borders(Borders::ALL)
                     .title("Captures"),
             )
@@ -130,9 +130,23 @@ pub fn captures(reg: Option<Regex>, body: String) -> impl Widget {
         Table::new(rows, widths).block(
             Block::new()
                 .border_type(BorderType::Rounded)
-                .border_style(Style::default())
+                .border_style(Style::default().fg(Color::Gray))
                 .borders(Borders::ALL)
                 .title("Captures"),
         )
     }
+}
+
+pub fn substitution(body: String, reg: Option<Regex>, substitution: String) -> impl Widget {
+    let body = match reg {
+        Some(regex) => regex.replace_all(&body, &substitution).to_string(),
+        None => body,
+    };
+    Paragraph::new(body).block(
+        Block::new()
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::Gray))
+            .borders(Borders::ALL)
+            .title("Output"),
+    )
 }

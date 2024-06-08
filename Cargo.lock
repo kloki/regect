@@ -290,7 +290,7 @@ dependencies = [
 
 [[package]]
 name = "regect"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "atty",
  "crossterm",

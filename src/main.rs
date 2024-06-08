@@ -30,7 +30,7 @@ fn main() -> io::Result<()> {
     let mut term = Terminal::new(backend)?;
 
     let mut app = app::App::new(input);
-    app.run(&mut term)?;
+    let output = app.run(&mut term)?;
 
     disable_raw_mode()?;
     crossterm::execute!(
@@ -39,6 +39,10 @@ fn main() -> io::Result<()> {
         DisableMouseCapture
     )?;
     term.show_cursor()?;
+
+    if let Some(output) = output {
+        println!("{}", output);
+    }
 
     Ok(())
 }

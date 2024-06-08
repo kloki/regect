@@ -5,7 +5,8 @@ use ratatui::{
 const HEADER: &str = r"┏┓┏┓┏┓┏┓┏╋
 ┛ ┗ ┗┫┗ ┗┗
 ";
-const FOOTER: &str = r"^h quick reference, ^q quit";
+const FOOTER: &str =
+    r"^x toggle match/substitution, ^e export regex, ^o export output, ^h quick reference, ^q quit";
 
 const HELP: &str = r"
 Character     Description                  Frequency & Quantifiers   Grouping & Boundaries
