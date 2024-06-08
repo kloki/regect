@@ -63,7 +63,7 @@ impl App<'_> {
             info_mode: InfoMode::Captures,
             regex_input: RegexInput::new(),
             sub_input: SubstitutionInput::new(),
-            body: TestInput::new(),
+            body,
         }
     }
 
