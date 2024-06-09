@@ -9,23 +9,22 @@ const FOOTER: &str =
     r"^x toggle match/substitution, ^e export regex, ^o export output, ^h quick reference, ^q quit";
 
 const HELP: &str = r"
-Character     Description                  Frequency & Quantifiers   Grouping & Boundaries
-.             Any character except newline *    0 or more            ()    Grouping
-^             Start of string              +    1 or more            (?:)  Non-capturing group
-$             End of string                ?    0 or 1 (optional)    (?<>) Named group
-\d            Any digit ([0-9])            {n}  Exactly n            (?=)  Positive lookahead
-\D            Any non-digit                {n,} n or more            (?!   Negative lookahead
-\w            Any word char ([a-zA-Z0-9_]) {n,m} Between n and m     (?<=  Positive lookbehind
-\W            Any non-word char            ?    Non-greedy           (?<!  Negative lookbehind
-\s            Any whitespace               |    Alternation (OR)     \b    Word boundary
-\S            Any non-whitespace                                     \B    Non-word boundary
-
-Character Sets       Escapes                     Special
-[a-z]                \\    Backslash escape      \    Escape character
-[^a-z]               \n    Newline               [\^$.|?*+(){}] Escape metacharacters
-[a-zA-Z]             \t    Tab                   [\b]  Backspace in char class
-[0-9]                \r    Carriage return
-[a-zA-Z0-9]          \f    Form feed
+Match                               Quantifiers                         Groups & Substitution
+.              any char except \n   x*             zero or more of x    (exp)          numbered capture group
+\d             digit                x+             one or more of x     (?<name>exp)   named capture group
+\D             not digit            x?             zero or one of x     (?:exp)        non-capturing group
+\s             whitespace           x{n,m}         at least n x and     (?flags)       set flags within current group
+\S             not whitespace                      at most m x          (?flags:exp)   set flags for exp (non-capturing)
+\w             word character       x{n,}          at least n x         i              case-insensitive
+\W             not word character   x{n}           exactly n x          m              multi-line mode:
+\n             new line                                                                ^ and $ match begin/end of line
+[xyz]          matching either                                          $0             Complete match
+               x, y or z (union).                                       $1             Contents of the first group
+[^xyz]         matching all except                                      $foo           Contents of the group named foo
+               x, y and z.
+[a-z]          matching in range a-z.
+^              match begin haystack
+$              the end of a haystack
 ";
 
 pub fn header() -> impl Widget {
