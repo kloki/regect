@@ -1,7 +1,7 @@
-use std::{io, io::StdoutLock};
+use std::io;
 
 use ratatui::{
-    backend::CrosstermBackend,
+    backend::Backend,
     layout::{Constraint, Direction, Layout},
     terminal::Terminal,
     Frame,
@@ -58,7 +58,7 @@ impl App<'_> {
         }
 
         Self {
-            mode: Mode::Match,
+            mode: Mode::Substitution,
             edit_mode: EditMode::Regex,
             info_mode: InfoMode::Captures,
             regex_input: RegexInput::new(),
@@ -67,10 +67,7 @@ impl App<'_> {
         }
     }
 
-    pub fn run(
-        &mut self,
-        term: &mut Terminal<CrosstermBackend<StdoutLock<'static>>>,
-    ) -> io::Result<Option<String>> {
+    pub fn run<B: Backend>(&mut self, term: &mut Terminal<B>) -> io::Result<Option<String>> {
         loop {
             term.draw(|f| self.draw(f))?;
             match self.handle_input()? {

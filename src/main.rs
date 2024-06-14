@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, io::BufWriter};
 
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -21,13 +21,12 @@ fn read_from_stdin() -> Option<Vec<String>> {
 
 fn main() -> io::Result<()> {
     let input = read_from_stdin();
-    let stdout = io::stdout();
-    let mut stdout = stdout.lock();
+    let output = io::stderr();
+    let mut output = output.lock();
 
     enable_raw_mode()?;
-    crossterm::execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut term = Terminal::new(backend)?;
+    crossterm::execute!(output, EnterAlternateScreen, EnableMouseCapture)?;
+    let mut term = Terminal::new(CrosstermBackend::new(BufWriter::new(output)))?;
 
     let mut app = app::App::new(input);
     let output = app.run(&mut term)?;
