@@ -1,6 +1,6 @@
 [package]
 name = "regect"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 
 
@@ -10,7 +10,6 @@ repository = "https://github.com/kloki/regect"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atty = "0.2.14"
 crossterm = "0.27.0"
 ratatui = "0.26.3"
 regex = "1.10.4"

@@ -1,4 +1,7 @@
-use std::{io, io::BufWriter};
+use std::{
+    io,
+    io::{BufWriter, IsTerminal},
+};
 
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -12,8 +15,9 @@ mod body;
 mod regex_input;
 
 fn read_from_stdin() -> Option<Vec<String>> {
-    if !atty::is(atty::Stream::Stdin) {
-        Some(io::stdin().lines().map(|l| l.unwrap()).collect())
+    let input = io::stdin();
+    if !input.is_terminal() {
+        Some(input.lines().map(|l| l.unwrap()).collect())
     } else {
         None
     }
