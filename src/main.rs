@@ -3,7 +3,8 @@ use std::{
     io::{BufWriter, IsTerminal},
 };
 
-use crossterm::{
+use ratatui::crossterm::{
+    self,
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
