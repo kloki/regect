@@ -2,9 +2,9 @@ use std::io;
 
 use ratatui::{
     backend::Backend,
+    crossterm,
     layout::{Constraint, Direction, Layout},
-    terminal::Terminal,
-    Frame,
+    Frame, Terminal,
 };
 use tui_textarea::{Input, Key};
 
@@ -94,17 +94,17 @@ impl App<'_> {
                 Constraint::Fill(1),
                 Constraint::Length(1),
             ])
-            .split(f.size());
+            .split(f.area());
         f.render_widget(header(), layout[0]);
         f.render_widget(footer(), layout[4]);
 
         match self.edit_mode {
             EditMode::Body => {
                 f.render_widget(self.regex_input.unfocused(), layout[1]);
-                f.render_widget(self.body.textarea.widget(), layout[2]);
+                f.render_widget(&self.body.textarea, layout[2]);
             }
             _ => {
-                f.render_widget(self.regex_input.textarea.widget(), layout[1]);
+                f.render_widget(&self.regex_input.textarea, layout[1]);
                 f.render_widget(
                     self.body.highlighted_body(self.regex_input.current_regex()),
                     layout[2],
@@ -132,7 +132,7 @@ impl App<'_> {
                 Constraint::Fill(1),
                 Constraint::Length(1),
             ])
-            .split(f.size());
+            .split(f.area());
 
         let input_layout = Layout::default()
             .direction(Direction::Horizontal)
@@ -145,10 +145,10 @@ impl App<'_> {
             EditMode::Body => {
                 f.render_widget(self.regex_input.unfocused(), input_layout[0]);
                 f.render_widget(self.sub_input.unfocused(), input_layout[1]);
-                f.render_widget(self.body.textarea.widget(), layout[2]);
+                f.render_widget(&self.body.textarea, layout[2]);
             }
             EditMode::Regex => {
-                f.render_widget(self.regex_input.textarea.widget(), input_layout[0]);
+                f.render_widget(&self.regex_input.textarea, input_layout[0]);
                 f.render_widget(self.sub_input.unfocused(), input_layout[1]);
                 f.render_widget(
                     self.body.highlighted_body(self.regex_input.current_regex()),
@@ -157,7 +157,7 @@ impl App<'_> {
             }
             EditMode::Substitution => {
                 f.render_widget(self.regex_input.unfocused(), input_layout[0]);
-                f.render_widget(self.sub_input.textarea.widget(), input_layout[1]);
+                f.render_widget(&self.sub_input.textarea, input_layout[1]);
                 f.render_widget(
                     self.body.highlighted_body(self.regex_input.current_regex()),
                     layout[2],
