@@ -19,5 +19,5 @@ cat input.txt | regect > filtered_output.txt
 # Install
 
 ```bash
-cargo install regect
+cargo install regect --locked
 ```
