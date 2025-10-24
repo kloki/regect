@@ -21,3 +21,7 @@ cat input.txt | regect > filtered_output.txt
 ```bash
 cargo install regect --locked
 ```
+
+## Binaries
+
+Check [Releases](https://github.com/kloki/regect/releases) for binaries and installers
