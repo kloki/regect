@@ -1,6 +1,6 @@
 [package]
 name = "regect"
-version = "0.2.7"
+version = "1.3.0"
 edition = "2021"
 description = "A cli tool to quickly test regular expressions"
 license = "MIT"
