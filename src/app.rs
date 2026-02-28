@@ -6,7 +6,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout},
     Frame, Terminal,
 };
-use tui_textarea::{Input, Key};
+use ratatui_textarea::{Input, Key};
 
 use crate::{
     banners::{footer, header, help},
@@ -67,7 +67,7 @@ impl App<'_> {
         }
     }
 
-    pub fn run<B: Backend>(&mut self, term: &mut Terminal<B>) -> io::Result<Option<String>> {
+    pub fn run<B: Backend<Error = io::Error>>(&mut self, term: &mut Terminal<B>) -> io::Result<Option<String>> {
         loop {
             term.draw(|f| self.draw(f))?;
             match self.handle_input()? {

@@ -8,9 +8,9 @@ repository = "https://github.com/kloki/regect"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ratatui = "0.29.0"
+ratatui = "0.30.0"
 regex = "1.10.4"
-tui-textarea = "0.7.0"
+ratatui-textarea = "0.8.0"
 
 # The profile that 'dist' will build with
 [profile.dist]

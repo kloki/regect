@@ -3,7 +3,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
 use regex::Regex;
-use tui_textarea::TextArea;
+use ratatui_textarea::TextArea;
 
 pub struct RegexInput<'a> {
     pub textarea: TextArea<'a>,

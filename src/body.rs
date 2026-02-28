@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph, Row, Table, Widget},
 };
 use regex::Regex;
-use tui_textarea::TextArea;
+use ratatui_textarea::TextArea;
 
 pub fn get_color(index: usize) -> Color {
     match index % 5 {
