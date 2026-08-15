@@ -2,8 +2,19 @@ use ratatui::{
     style::{Color, Style},
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
-use regex::Regex;
 use ratatui_textarea::TextArea;
+use regex::Regex;
+
+fn block(title: impl Into<String>) -> Block<'static> {
+    Block::default()
+        .border_type(BorderType::Rounded)
+        .borders(Borders::ALL)
+        .title(title.into())
+}
+
+fn unfocused_block(title: impl Into<String>) -> Block<'static> {
+    block(title).border_style(Style::default().fg(Color::Gray))
+}
 
 pub struct RegexInput<'a> {
     pub textarea: TextArea<'a>,
@@ -14,24 +25,12 @@ impl RegexInput<'_> {
         let mut textarea = TextArea::default();
         textarea.set_placeholder_text("Enter a valid regex");
         textarea.set_style(Style::default().fg(Color::LightGreen));
-
-        textarea.set_block(
-            Block::default()
-                .border_type(BorderType::Rounded)
-                .borders(Borders::ALL)
-                .title("Regex"),
-        );
+        textarea.set_block(block("Regex"));
         Self { textarea }
     }
 
     pub fn unfocused(&self) -> impl Widget + '_ {
-        Paragraph::new(self.textarea.lines()[0].clone()).block(
-            Block::new()
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::Gray))
-                .borders(Borders::ALL)
-                .title("Regex"),
-        )
+        Paragraph::new(self.textarea.lines()[0].clone()).block(unfocused_block("Regex"))
     }
 
     pub fn current_regex(&self) -> Option<Regex> {
@@ -43,26 +42,15 @@ impl RegexInput<'_> {
     }
 
     pub fn validate(&mut self) {
-        if let Err(err) = Regex::new(&self.textarea.lines()[0]) {
-            self.textarea
-                .set_style(Style::default().fg(Color::LightRed));
-            self.textarea.set_block(
-                Block::default()
-                    .border_type(BorderType::Rounded)
-                    .borders(Borders::ALL)
-                    .border_style(Style::default().fg(Color::LightRed))
-                    .title(format!("{}", err)),
-            );
-        } else {
-            self.textarea
-                .set_style(Style::default().fg(Color::LightGreen));
-            self.textarea.set_block(
-                Block::default()
-                    .border_type(BorderType::Rounded)
-                    .borders(Borders::ALL)
-                    .title("Regex"),
-            );
-        }
+        let (style, block) = match Regex::new(&self.textarea.lines()[0]) {
+            Ok(_) => (Style::default().fg(Color::LightGreen), block("Regex")),
+            Err(err) => (
+                Style::default().fg(Color::LightRed),
+                block(format!("{}", err)).border_style(Style::default().fg(Color::LightRed)),
+            ),
+        };
+        self.textarea.set_style(style);
+        self.textarea.set_block(block);
     }
 }
 
@@ -75,24 +63,12 @@ impl SubstitutionInput<'_> {
         let mut textarea = TextArea::default();
         textarea.set_placeholder_text("Enter substitution string");
         textarea.set_style(Style::default().fg(Color::LightGreen));
-
-        textarea.set_block(
-            Block::default()
-                .border_type(BorderType::Rounded)
-                .borders(Borders::ALL)
-                .title("Substitution"),
-        );
+        textarea.set_block(block("Substitution"));
         Self { textarea }
     }
 
     pub fn unfocused(&self) -> impl Widget + '_ {
-        Paragraph::new(self.textarea.lines()[0].clone()).block(
-            Block::new()
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::Gray))
-                .borders(Borders::ALL)
-                .title("Substitution"),
-        )
+        Paragraph::new(self.textarea.lines()[0].clone()).block(unfocused_block("Substitution"))
     }
 
     pub fn current_substitution(&self) -> String {

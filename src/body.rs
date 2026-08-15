@@ -4,8 +4,8 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, BorderType, Borders, Paragraph, Row, Table, Widget},
 };
-use regex::Regex;
 use ratatui_textarea::TextArea;
+use regex::Regex;
 
 pub fn get_color(index: usize) -> Color {
     match index % 5 {
@@ -38,15 +38,14 @@ impl TestInput<'_> {
     }
     pub fn highlighted_body(&self, current_regex: Option<Regex>) -> impl Widget + '_ {
         fn append_match(part: &str, lines: &mut Vec<Vec<Span>>, style: Style) {
-            let mut last = lines.len() - 1;
             if !part.contains('\n') {
+                let last = lines.len() - 1;
                 lines[last].push(Span::styled(part.to_owned(), style));
                 return;
             }
 
-            for p in part.split('\n') {
+            for (last, p) in (lines.len() - 1..).zip(part.split('\n')) {
                 lines[last].push(Span::styled(p.to_owned(), style));
-                last += 1;
                 lines.push(vec![]);
             }
 
@@ -91,6 +90,12 @@ impl TestInput<'_> {
 }
 
 pub fn captures(reg: Option<Regex>, body: String) -> impl Widget {
+    let block = Block::new()
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(Color::Gray))
+        .borders(Borders::ALL)
+        .title("Captures");
+
     if let Some(reg) = reg {
         let mut rows: Vec<Row> = vec![];
         let names = reg
@@ -117,23 +122,11 @@ pub fn captures(reg: Option<Regex>, body: String) -> impl Widget {
         Table::new(rows, widths)
             .column_spacing(1)
             .header(Row::new(names).bottom_margin(1))
-            .block(
-                Block::new()
-                    .border_type(BorderType::Rounded)
-                    .border_style(Style::default().fg(Color::Gray))
-                    .borders(Borders::ALL)
-                    .title("Captures"),
-            )
+            .block(block)
     } else {
         let rows: Vec<Row> = vec![];
         let widths: Vec<Constraint> = vec![];
-        Table::new(rows, widths).block(
-            Block::new()
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::Gray))
-                .borders(Borders::ALL)
-                .title("Captures"),
-        )
+        Table::new(rows, widths).block(block)
     }
 }
 

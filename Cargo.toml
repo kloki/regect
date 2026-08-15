@@ -8,11 +8,15 @@ repository = "https://github.com/kloki/regect"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ratatui = "0.30.0"
-regex = "1.10.4"
-ratatui-textarea = "0.8.0"
+ratatui = "0.30.2"
+regex = "1.13.1"
+ratatui-textarea = "0.9.2"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
 
 # The profile that 'dist' will build with
 [profile.dist]
 inherits = "release"
-lto = "thin"

@@ -67,7 +67,10 @@ impl App<'_> {
         }
     }
 
-    pub fn run<B: Backend<Error = io::Error>>(&mut self, term: &mut Terminal<B>) -> io::Result<Option<String>> {
+    pub fn run<B: Backend<Error = io::Error>>(
+        &mut self,
+        term: &mut Terminal<B>,
+    ) -> io::Result<Option<String>> {
         loop {
             term.draw(|f| self.draw(f))?;
             match self.handle_input()? {
